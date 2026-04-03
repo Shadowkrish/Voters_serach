@@ -1,0 +1,162 @@
+/* ===== RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== BODY ===== */
+body {
+  font-family: 'Inter', 'Noto Sans Malayalam', sans-serif;
+  background: #0b0b0b;
+  color: #ffffff;
+  overflow-x: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* ===== BLUE RIBBON ANIMATION ===== */
+body::before {
+  content: "";
+  position: fixed;
+  top: 35%;
+  left: -60%;
+  width: 220%;
+  height: 100px;
+  background: linear-gradient(90deg, transparent, #2563eb, transparent);
+  opacity: 0.12;
+  transform: rotate(-8deg);
+  animation: ribbonMove 8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes ribbonMove {
+  0% {
+    transform: translateX(-25%) rotate(-8deg);
+  }
+  100% {
+    transform: translateX(25%) rotate(-8deg);
+  }
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  width: 100%;
+  max-width: 480px;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== TITLE ===== */
+h2 {
+  text-align: center;
+  margin-bottom: 18px;
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: 0.3px;
+}
+
+/* ===== FILE INPUT ===== */
+input[type="file"] {
+  width: 100%;
+  background: #111827;
+  border: 1px solid #1f2937;
+  padding: 10px;
+  border-radius: 8px;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+
+/* ===== TEXT INPUT ===== */
+input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #1f2937;
+  background: #111827;
+  color: white;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #0f172a;
+}
+
+input::placeholder {
+  color: #6b7280;
+}
+
+/* ===== BUTTON ===== */
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #1d4ed8;
+  transform: scale(1.01);
+}
+
+/* ===== RESULTS ===== */
+#results {
+  margin-top: 20px;
+}
+
+/* ===== CARD ===== */
+.card {
+  background: #111827;
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border-left: 3px solid #2563eb;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  background: #1f2937;
+  transform: translateY(-2px);
+}
+
+/* ===== CARD TEXT ===== */
+.card p {
+  margin: 4px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* ===== EMPTY MESSAGE ===== */
+#results p {
+  text-align: center;
+  color: #9ca3af;
+  margin-top: 10px;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  h2 {
+    font-size: 18px;
+  }
+
+  input, button {
+    font-size: 14px;
+  }
+
+  .card p {
+    font-size: 13px;
+  }
+}
