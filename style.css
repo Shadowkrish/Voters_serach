@@ -50,7 +50,12 @@ body::before {
   position: relative;
   z-index: 1;
 }
-
+.highlight {
+  background-color: #2563eb;
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
 /* ===== TITLE ===== */
 h2 {
   text-align: center;
