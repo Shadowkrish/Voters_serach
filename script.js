@@ -7,46 +7,40 @@ function normalize(text) {
     return text.toString().toLowerCase().trim();
 }
 
-/* ===== FILE UPLOAD ===== */
-document.getElementById('upload').addEventListener('change', handleFile, false);
+/* ===== AUTO LOAD EXCEL FROM GITHUB ===== */
+window.addEventListener("load", loadDefaultExcel);
 
-function handleFile(e) {
-    const file = e.target.files[0];
+async function loadDefaultExcel() {
+    try {
+        const response = await fetch("voters.xlsx"); // file in repo
+        const arrayBuffer = await response.arrayBuffer();
 
-    if (!file) {
-        alert("⚠️ No file selected");
-        return;
+        const data = new Uint8Array(arrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        voterData = XLSX.utils.sheet_to_json(sheet);
+
+        console.log(`✅ Loaded ${voterData.length} records`);
+
+        // Optional: show ready message
+        document.getElementById('results').innerHTML =
+            "<p>✅ Data loaded. Start typing to search</p>";
+
+    } catch (error) {
+        console.error("Error loading Excel:", error);
+        document.getElementById('results').innerHTML =
+            "<p>❌ Failed to load data</p>";
     }
-
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            voterData = XLSX.utils.sheet_to_json(sheet);
-
-            alert(`✅ Loaded ${voterData.length} records`);
-
-        } catch (err) {
-            console.error(err);
-            alert("❌ Error reading file");
-        }
-    };
-
-    reader.readAsArrayBuffer(file);
 }
 
 /* ===== LIVE SEARCH (DEBOUNCE) ===== */
 document.getElementById('searchBox').addEventListener('input', function () {
     clearTimeout(searchTimeout);
 
-    // delay for performance (important for 10k+ rows)
     searchTimeout = setTimeout(() => {
         searchData();
-    }, 300);
+    }, 300); // delay for performance
 });
 
 /* ===== HIGHLIGHT FUNCTION ===== */
@@ -57,7 +51,8 @@ function highlight(text, query) {
 
     if (!query) return str;
 
-    const regex = new RegExp(`(${query})`, 'gi');
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // safe regex
+    const regex = new RegExp(`(${escaped})`, 'gi');
 
     return str.replace(regex, `<span class="highlight">$1</span>`);
 }
@@ -77,11 +72,11 @@ function searchData() {
     }
 
     if (voterData.length === 0) {
-        resultsDiv.innerHTML = "<p>⚠️ Upload voter list first</p>";
+        resultsDiv.innerHTML = "<p>⚠️ Data not loaded yet</p>";
         return;
     }
 
-    /* ===== FAST FILTER ===== */
+    /* ===== FAST SEARCH LOOP ===== */
     const filtered = [];
 
     for (let i = 0; i < voterData.length; i++) {
@@ -93,14 +88,14 @@ function searchData() {
 
             const val = value.toString().trim();
 
-            // number → exact match
+            // 🔢 Number → exact match
             if (isNumber) {
                 if (val === rawQuery) {
                     filtered.push(voter);
                     break;
                 }
             } 
-            // text → partial match
+            // 🔤 Text → partial match
             else {
                 if (val.toLowerCase().includes(query)) {
                     filtered.push(voter);
@@ -111,27 +106,24 @@ function searchData() {
     }
 
     if (filtered.length === 0) {
-        resultsDiv.innerHTML = "<p>❌ No results found</p>";
+        resultsDiv.innerHTML = "<p>❌ No matching records found</p>";
         return;
     }
 
-    /* ===== RESULT COUNT ===== */
+    /* ===== BUILD HTML (FASTER THAN +=) ===== */
     let html = `
         <p style="text-align:center; margin-bottom:10px;">
             ✅ ${filtered.length} result(s)
         </p>
     `;
 
-    /* ===== RENDER RESULTS ===== */
     for (let i = 0; i < filtered.length; i++) {
         const v = filtered[i];
-
         let content = "";
 
         for (let key in v) {
             let value = v[key] ? v[key].toString() : "-";
 
-            // highlight only for text search
             if (!isNumber) {
                 value = highlight(value, rawQuery);
             }
